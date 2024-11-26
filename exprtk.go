@@ -3,9 +3,11 @@ package exprtk
 // #cgo CXXFLAGS: -flto -fuse-linker-plugin -std=c++11
 // #cgo LDFLAGS: -L.
 // #include "exprtkwrapper.h"
+// #include <stdlib.h>
 import "C"
 import (
 	"errors"
+	"unsafe"
 )
 
 // GoExprtk ...Exprtk Structure
@@ -22,32 +24,58 @@ func NewExprtk() GoExprtk {
 
 // SetExpression ... Sets an Expression
 func (obj GoExprtk) SetExpression(expr string) {
-	C.setExpressionString(obj.exprtk, C.CString(expr))
+	str := C.CString(expr)
+
+	C.setExpressionString(obj.exprtk, str)
+
+	C.free(unsafe.Pointer(str))
 }
 
 // AddDoubleVariable ... Adds variable to the expression
 func (obj GoExprtk) AddDoubleVariable(x string) {
-	C.addDoubleVariable(obj.exprtk, C.CString(x))
+	str := C.CString(x)
+
+	C.addDoubleVariable(obj.exprtk, str)
+
+	C.free(unsafe.Pointer(str))
 }
 
 // AddStringVariable ... Adds variable to the expression
 func (obj GoExprtk) AddStringVariable(x string) {
-	C.addStringVariable(obj.exprtk, C.CString(x))
+	str := C.CString(x)
+
+	C.addStringVariable(obj.exprtk, str)
+
+	C.free(unsafe.Pointer(str))
 }
 
 // AddVectorVariable ... Adds variable to the expression
 func (obj GoExprtk) AddVectorVariable(x string) {
-	C.addVectorVariable(obj.exprtk, C.CString(x))
+	str := C.CString(x)
+
+	C.addVectorVariable(obj.exprtk, str)
+
+	defer C.free(unsafe.Pointer(str))
 }
 
 // SetDoubleVariableValue ... Sets value to the variable
 func (obj GoExprtk) SetDoubleVariableValue(varName string, val float64) {
-	C.setDoubleVariableValue(obj.exprtk, C.CString(varName), C.double(val))
+	cName := C.CString(varName)
+
+	C.setDoubleVariableValue(obj.exprtk, cName, C.double(val))
+
+	C.free(unsafe.Pointer(cName))
 }
 
 // SetStringVariableValue ... Sets value to the variable
 func (obj GoExprtk) SetStringVariableValue(varName string, val string) {
-	C.setStringVariableValue(obj.exprtk, C.CString(varName), C.CString(val))
+	cName := C.CString(varName)
+	cVal := C.CString(val)
+
+	C.setStringVariableValue(obj.exprtk, cName, cVal)
+
+	C.free(unsafe.Pointer(cName))
+	C.free(unsafe.Pointer(cVal))
 }
 
 // SetVectorVariableValue ... Sets value to the variable
@@ -58,7 +86,12 @@ func (obj GoExprtk) SetVectorVariableValue(varName string, val []float64) {
 	}
 	firstValue := &(arr[0])
 	var arrayLength C.int = C.int(len(arr))
-	C.setVectorVariableValue(obj.exprtk, C.CString(varName), firstValue, arrayLength)
+
+	cName := C.CString(varName)
+
+	C.setVectorVariableValue(obj.exprtk, cName, firstValue, arrayLength)
+
+	C.free(unsafe.Pointer(cName))
 }
 
 // CompileExpression ... Compiles the Expression
