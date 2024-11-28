@@ -112,3 +112,19 @@ func (obj GoExprtk) GetEvaluatedValue() float64 {
 func (obj GoExprtk) Delete() {
 	C.deleteExprtk(obj.exprtk)
 }
+
+// CollectVariables Returns names of all variables in Expression
+func (obj GoExprtk) CollectVariables() []string {
+	arr := C.collectVariables(obj.exprtk)
+	defer C.freeVariableNamesArray(arr)
+
+	arrSlice := make([]string, 0, arr.size)
+
+	varDataSlice := unsafe.Slice(arr.data, arr.size)
+
+	for idx := range varDataSlice {
+		arrSlice = append(arrSlice, C.GoString(varDataSlice[idx]))
+	}
+
+	return arrSlice
+}

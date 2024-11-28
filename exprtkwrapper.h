@@ -7,6 +7,11 @@ extern "C" {
 
 typedef void* exprtkWrapper;
 
+struct CVariableNamesArray {
+    char** data;
+    int size;
+};
+
 exprtkWrapper exprtkWrapperInit(void);
 
 void setExpressionString(exprtkWrapper, char* expr);
@@ -31,6 +36,9 @@ double getEvaluatedValue(exprtkWrapper);
 
 void deleteExprtk(exprtkWrapper);
 
+struct CVariableNamesArray collectVariables(exprtkWrapper);
+
+void freeVariableNamesArray(struct CVariableNamesArray);
 
 #ifdef __cplusplus
 }

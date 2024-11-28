@@ -145,3 +145,32 @@ void deleteExprtk(exprtkWrapper obj)
 {
     delete (ExprtkStruct*)obj;
 }
+
+CVariableNamesArray collectVariables(exprtkWrapper obj)
+{
+    ExprtkStruct* exprtkStruct = (ExprtkStruct*)obj;
+    std::vector<std::string> variables;
+
+    if (!exprtk::collect_variables(exprtkStruct->exprString, variables)) {
+        return {};
+    }
+
+    CVariableNamesArray result;
+    result.size = variables.size();
+    result.data = new char*[result.size];
+
+	for (int idx = 0; idx < result.size; ++idx){
+        result.data[idx] = strdup(variables[idx].c_str());
+    }
+
+    return result;
+}
+
+void freeVariableNamesArray(CVariableNamesArray arr)
+{
+    for (int idx = 0; idx < arr.size; ++idx){
+        delete arr.data[idx];
+    }
+
+    delete arr.data;
+}
